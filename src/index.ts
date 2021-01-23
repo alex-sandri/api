@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import bearerToken from "express-bearer-token";
 import dotenv from "dotenv";
-import Response from "./utilities/Response";
+import Response from "./models/Response";
 
 dotenv.config();
 
