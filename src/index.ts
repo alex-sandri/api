@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request as ExpressRequest, Response as ExpressResponse } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bearerToken from "express-bearer-token";
@@ -6,8 +6,6 @@ import dotenv from "dotenv";
 import Response from "./utilities/Response";
 
 dotenv.config();
-
-// TODO: Add Auth
 
 interface ApiConfig
 {
@@ -19,7 +17,9 @@ interface Endpoint
 {
     url: string;
     method: "DELETE" | "GET" | "POST" | "PUT";
-    callback: (request: any, response: Response) => Promise<void>;
+    callback: (request: ExpressRequest, response: Response) => Promise<void>;
+
+    checkAuth?: (token: string, response: Response) => Promise<boolean>;
 }
 
 export default class Api
@@ -36,43 +36,48 @@ export default class Api
 
         this.app.use(express.json());
 
-        config.endpoints.forEach(endpoint =>
+        config.endpoints.forEach(async endpoint =>
         {
+            const handler = async (req: ExpressRequest, res: ExpressResponse) =>
+            {
+                const response = Response.from(res);
+
+                if (endpoint.checkAuth)
+                {
+                    const allow = await endpoint.checkAuth(req.token ?? "", response);
+
+                    if (!allow)
+                    {
+                        return;
+                    }
+                }
+
+                endpoint.callback(req, response);
+            }
+
             switch (endpoint.method)
             {
                 case "DELETE":
                 {
-                    this.app.delete(endpoint.url, (req, res) =>
-                    {
-                        endpoint.callback(req, Response.from(res));
-                    });
+                    this.app.delete(endpoint.url, handler);
 
                     break;
                 }
                 case "GET":
                 {
-                    this.app.get(endpoint.url, (req, res) =>
-                    {
-                        endpoint.callback(req, Response.from(res));
-                    });
+                    this.app.get(endpoint.url, handler);
 
                     break;
                 }
                 case "POST":
                 {
-                    this.app.post(endpoint.url, (req, res) =>
-                    {
-                        endpoint.callback(req, Response.from(res));
-                    });
+                    this.app.post(endpoint.url, handler);
 
                     break;
                 }
                 case "PUT":
                 {
-                    this.app.put(endpoint.url, (req, res) =>
-                    {
-                        endpoint.callback(req, Response.from(res));
-                    });
+                    this.app.put(endpoint.url, handler);
 
                     break;
                 }
