@@ -3,8 +3,11 @@ import cors from "cors";
 import helmet from "helmet";
 import bearerToken from "express-bearer-token";
 import dotenv from "dotenv";
+import Response from "./utilities/Response";
 
 dotenv.config();
+
+// TODO: Add Auth
 
 interface ApiConfig
 {
@@ -16,20 +19,22 @@ interface Endpoint
 {
     url: string;
     method: "DELETE" | "GET" | "POST" | "PUT";
-    callback: (body: any) => Promise<void>;
+    callback: (request: any, response: Response) => Promise<void>;
 }
 
 export default class Api
 {
-    public constructor(config: ApiConfig)
+    private app: express.Express;
+
+    public constructor(private config: ApiConfig)
     {
-        const app = express();
+        this.app = express();
 
-        app.use(cors());
-        app.use(helmet());
-        app.use(bearerToken());
+        this.app.use(cors());
+        this.app.use(helmet());
+        this.app.use(bearerToken());
 
-        app.use(express.json());
+        this.app.use(express.json());
 
         config.endpoints.forEach(endpoint =>
         {
@@ -37,31 +42,46 @@ export default class Api
             {
                 case "DELETE":
                 {
-                    app.delete(endpoint.url, endpoint.callback);
+                    this.app.delete(endpoint.url, (req, res) =>
+                    {
+                        endpoint.callback(req, Response.from(res));
+                    });
 
                     break;
                 }
                 case "GET":
                 {
-                    app.get(endpoint.url, endpoint.callback);
+                    this.app.get(endpoint.url, (req, res) =>
+                    {
+                        endpoint.callback(req, Response.from(res));
+                    });
 
                     break;
                 }
                 case "POST":
                 {
-                    app.post(endpoint.url, endpoint.callback);
+                    this.app.post(endpoint.url, (req, res) =>
+                    {
+                        endpoint.callback(req, Response.from(res));
+                    });
 
                     break;
                 }
                 case "PUT":
                 {
-                    app.put(endpoint.url, endpoint.callback);
+                    this.app.put(endpoint.url, (req, res) =>
+                    {
+                        endpoint.callback(req, Response.from(res));
+                    });
 
                     break;
                 }
             }
         });
+    }
 
-        app.listen(config.port ?? 3000);
+    public listen(): void
+    {
+        this.app.listen(this.config.port ?? 3000);
     }
 }
