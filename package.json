@@ -1,0 +1,20 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Alex Sandri",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-sandri/api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alex-sandri/api/issues"
+  },
+  "homepage": "https://github.com/alex-sandri/api#readme",
+  "description": ""
+}
