@@ -1,6 +1,6 @@
 {
   "name": "@alex-sandri/api",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "lib/index.js",
   "scripts": {
     "start": "nodemon -e ts --watch src/ --exec npm run build",
