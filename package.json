@@ -2,6 +2,7 @@
   "name": "@alex-sandri/api",
   "version": "1.0.3",
   "main": "lib/index",
+  "typings": "lib/index",
   "scripts": {
     "start": "nodemon -e ts --watch src/ --exec npm run build",
     "build": "tsc",
