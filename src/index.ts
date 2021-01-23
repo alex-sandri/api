@@ -90,3 +90,5 @@ export default class Api
         this.app.listen(this.config.port ?? 3000);
     }
 }
+
+export * from "./models/Response";
