@@ -14,7 +14,7 @@ interface AuthenticatedEndpointConfig<T>
     method: "DELETE" | "GET" | "POST" | "PUT";
     url: string;
     callback: (request: ExpressRequest, response: Response, token: T) => Promise<void>;
-    retrieveToken: (id: string) => Promise<T>;
+    retrieveToken: (id: string) => Promise<T | null>;
 }
 
 export class Endpoint
