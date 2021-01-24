@@ -1,9 +1,8 @@
-import express, { Request as ExpressRequest, Response as ExpressResponse } from "express";
+import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bearerToken from "express-bearer-token";
 import dotenv from "dotenv";
-import Response from "./models/Response";
 import Endpoint, { AuthenticatedEndpoint } from "./models/Endpoint";
 
 dotenv.config();
