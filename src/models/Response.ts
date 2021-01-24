@@ -27,7 +27,7 @@ export interface IResponseData
     }[];
 }
 
-export default class Response
+export class Response
 {
     public body: IResponseData = { status: { code: 200, message: "OK" } };
 

@@ -2,10 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bearerToken from "express-bearer-token";
-import dotenv from "dotenv";
-import Endpoint, { AuthenticatedEndpoint } from "./models/Endpoint";
-
-dotenv.config();
+import { Endpoint, AuthenticatedEndpoint } from "./models/Endpoint";
 
 interface ApiConfig
 {

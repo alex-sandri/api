@@ -1,6 +1,6 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from "express";
 
-import Response from "./Response";
+import { Response } from "./Response";
 
 interface EndpointConfig
 {
@@ -17,7 +17,7 @@ interface AuthenticatedEndpointConfig<T>
     retrieveToken: (id: string) => Promise<T>;
 }
 
-export default class Endpoint
+export class Endpoint
 {
     public constructor(public config: EndpointConfig)
     {}
