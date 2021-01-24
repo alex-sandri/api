@@ -72,3 +72,4 @@ export default class Api
 }
 
 export * from "./models/Response";
+export * from "./models/Endpoint";
