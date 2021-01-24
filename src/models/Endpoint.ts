@@ -59,6 +59,18 @@ export class AuthenticatedEndpoint<T>
         }
         */
 
-        this.config.callback(req, response, token);
+        try
+        {
+            await this.config.callback(req, response, token);
+        }
+        catch (error)
+        {
+            if (error instanceof Error)
+            {
+                // TODO: Create ApiError class to replace the generic Error
+                // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
+                response.body.errors = [ { id: "error", message: error.message } ];
+            }
+        }
     }
 }
