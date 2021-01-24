@@ -26,19 +26,19 @@ export class Endpoint
     {
         const response = Response.from(res);
 
-        try
-        {
-            await this.config.callback(req, response);
-        }
-        catch (error)
-        {
-            if (error instanceof Error)
+        this.config
+            .callback(req, response)
+            .catch(error =>
             {
-                // TODO: Create ApiError class to replace the generic Error
-                // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
-                response.body.errors = [ { id: "error", message: error.message } ];
-            }
-        }
+                if (error instanceof Error)
+                {
+                    // TODO: Create ApiError class to replace the generic Error
+                    // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
+                    response.body.errors = [ { id: "error", message: error.message } ];
+                }
+
+                response.send();
+            });
     }
 }
 
@@ -71,18 +71,18 @@ export class AuthenticatedEndpoint<T>
         }
         */
 
-        try
-        {
-            await this.config.callback(req, response, token);
-        }
-        catch (error)
-        {
-            if (error instanceof Error)
+        this.config
+            .callback(req, response, token)
+            .catch(error =>
             {
-                // TODO: Create ApiError class to replace the generic Error
-                // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
-                response.body.errors = [ { id: "error", message: error.message } ];
-            }
-        }
+                if (error instanceof Error)
+                {
+                    // TODO: Create ApiError class to replace the generic Error
+                    // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
+                    response.body.errors = [ { id: "error", message: error.message } ];
+                }
+
+                response.send();
+            });
     }
 }
