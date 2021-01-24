@@ -4,22 +4,17 @@ import helmet from "helmet";
 import bearerToken from "express-bearer-token";
 import dotenv from "dotenv";
 import Response from "./models/Response";
+import Endpoint, { AuthenticatedEndpoint } from "./models/Endpoint";
 
 dotenv.config();
 
 interface ApiConfig
 {
+    /**
+     * @default 3000
+     */
     port?: number;
-    endpoints: Endpoint[];
-}
-
-interface Endpoint
-{
-    url: string;
-    method: "DELETE" | "GET" | "POST" | "PUT";
-    callback: (request: ExpressRequest, response: Response) => Promise<void>;
-
-    checkAuth?: (token: string, response: Response) => Promise<boolean>;
+    endpoints: (Endpoint | AuthenticatedEndpoint<any>)[];
 }
 
 export default class Api
@@ -38,46 +33,32 @@ export default class Api
 
         config.endpoints.forEach(async endpoint =>
         {
-            const handler = async (req: ExpressRequest, res: ExpressResponse) =>
-            {
-                const response = Response.from(res);
+            const method = endpoint.config.method;
+            const url = endpoint.config.url;
 
-                if (endpoint.checkAuth)
-                {
-                    const allow = await endpoint.checkAuth(req.token ?? "", response);
-
-                    if (!allow)
-                    {
-                        return;
-                    }
-                }
-
-                endpoint.callback(req, response);
-            }
-
-            switch (endpoint.method)
+            switch (method)
             {
                 case "DELETE":
                 {
-                    this.app.delete(endpoint.url, handler);
+                    this.app.delete(url, endpoint.run);
 
                     break;
                 }
                 case "GET":
                 {
-                    this.app.get(endpoint.url, handler);
+                    this.app.get(url, endpoint.run);
 
                     break;
                 }
                 case "POST":
                 {
-                    this.app.post(endpoint.url, handler);
+                    this.app.post(url, endpoint.run);
 
                     break;
                 }
                 case "PUT":
                 {
-                    this.app.put(endpoint.url, handler);
+                    this.app.put(url, endpoint.run);
 
                     break;
                 }
