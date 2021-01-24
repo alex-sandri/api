@@ -26,7 +26,19 @@ export class Endpoint
     {
         const response = Response.from(res);
 
-        this.config.callback(req, response);
+        try
+        {
+            await this.config.callback(req, response);
+        }
+        catch (error)
+        {
+            if (error instanceof Error)
+            {
+                // TODO: Create ApiError class to replace the generic Error
+                // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
+                response.body.errors = [ { id: "error", message: error.message } ];
+            }
+        }
     }
 }
 
