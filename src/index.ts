@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request as ExpressRequest, Response as ExpressResponse } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bearerToken from "express-bearer-token";
@@ -32,29 +32,34 @@ export default class Api
             const method = endpoint.config.method;
             const url = endpoint.config.url;
 
+            const handler = async (req: ExpressRequest, res: ExpressResponse) =>
+            {
+                await endpoint.run(req, res);
+            }
+
             switch (method)
             {
                 case "DELETE":
                 {
-                    this.app.delete(url, endpoint.run);
+                    this.app.delete(url, handler);
 
                     break;
                 }
                 case "GET":
                 {
-                    this.app.get(url, endpoint.run);
+                    this.app.get(url, handler);
 
                     break;
                 }
                 case "POST":
                 {
-                    this.app.post(url, endpoint.run);
+                    this.app.post(url, handler);
 
                     break;
                 }
                 case "PUT":
                 {
-                    this.app.put(url, endpoint.run);
+                    this.app.put(url, handler);
 
                     break;
                 }
