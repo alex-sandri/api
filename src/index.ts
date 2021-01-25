@@ -10,7 +10,7 @@ interface ApiConfig
      * @default 3000
      */
     port?: number;
-    endpoints: (Endpoint | AuthenticatedEndpoint<any>)[];
+    endpoints: (Endpoint<any> | AuthenticatedEndpoint<any, any>)[];
 }
 
 export default class Api
@@ -75,3 +75,4 @@ export default class Api
 
 export * from "./models/Response";
 export * from "./models/Endpoint";
+export * from "./common/ISerializable";

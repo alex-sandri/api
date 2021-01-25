@@ -1,25 +1,26 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from "express";
 
+import { ISerializable } from "../common/ISerializable";
 import { Response } from "./Response";
 
-interface EndpointConfig
+interface EndpointConfig<T extends ISerializable>
 {
     method: "DELETE" | "GET" | "POST" | "PUT";
     url: string;
-    callback: (request: ExpressRequest, response: Response) => Promise<void>;
+    callback: (request: ExpressRequest, response: Response) => Promise<T | T[]>;
 }
 
-interface AuthenticatedEndpointConfig<T>
+interface AuthenticatedEndpointConfig<T extends ISerializable, Token>
 {
     method: "DELETE" | "GET" | "POST" | "PUT";
     url: string;
-    callback: (request: ExpressRequest, response: Response, token: T) => Promise<void>;
-    retrieveToken: (id: string) => Promise<T | null>;
+    callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[]>;
+    retrieveToken: (id: string) => Promise<Token | null>;
 }
 
-export class Endpoint
+export class Endpoint<T extends ISerializable>
 {
-    public constructor(public config: EndpointConfig)
+    public constructor(public config: EndpointConfig<T>)
     {}
 
     public async run(req: ExpressRequest, res: ExpressResponse): Promise<void>
@@ -28,6 +29,15 @@ export class Endpoint
 
         this.config
             .callback(req, response)
+            .then(data =>
+            {
+                if (Array.isArray(data))
+                {
+                    return data.map(_ => _.serialize());
+                }
+
+                return data.serialize();
+            })
             .catch(error =>
             {
                 if (error instanceof Error)
@@ -42,9 +52,9 @@ export class Endpoint
     }
 }
 
-export class AuthenticatedEndpoint<T>
+export class AuthenticatedEndpoint<T extends ISerializable, Token>
 {
-    public constructor(public config: AuthenticatedEndpointConfig<T>)
+    public constructor(public config: AuthenticatedEndpointConfig<T, Token>)
     {}
 
     public async run(req: ExpressRequest, res: ExpressResponse): Promise<void>
@@ -73,6 +83,15 @@ export class AuthenticatedEndpoint<T>
 
         this.config
             .callback(req, response, token)
+            .then(data =>
+            {
+                if (Array.isArray(data))
+                {
+                    return data.map(_ => _.serialize());
+                }
+    
+                return data.serialize();
+            })
             .catch(error =>
             {
                 if (error instanceof Error)
