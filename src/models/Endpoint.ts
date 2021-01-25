@@ -1,6 +1,7 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from "express";
 
 import { ISerializable } from "../common/ISerializable";
+import { ApiError } from "./ApiError";
 import { Response } from "./Response";
 
 interface EndpointConfig<T extends ISerializable>
@@ -54,10 +55,12 @@ export class Endpoint<T extends ISerializable>
             })
             .catch(error =>
             {
-                if (error instanceof Error)
+                if (error instanceof ApiError)
                 {
-                    // TODO: Create ApiError class to replace the generic Error
-                    // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
+                    response.body.errors = [ error ];
+                }
+                else if (error instanceof Error)
+                {
                     response.body.errors = [ { id: "error", message: error.message } ];
                 }
 
@@ -122,10 +125,12 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
             })
             .catch(error =>
             {
-                if (error instanceof Error)
+                if (error instanceof ApiError)
                 {
-                    // TODO: Create ApiError class to replace the generic Error
-                    // TODO: id must be in the format aaa/bbb/ccc, example: user/password/wrong
+                    response.body.errors = [ error ];
+                }
+                else if (error instanceof Error)
+                {
                     response.body.errors = [ { id: "error", message: error.message } ];
                 }
 
