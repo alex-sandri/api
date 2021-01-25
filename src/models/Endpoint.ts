@@ -7,14 +7,14 @@ interface EndpointConfig<T extends ISerializable>
 {
     method: "DELETE" | "GET" | "POST" | "PUT";
     url: string;
-    callback: (request: ExpressRequest, response: Response) => Promise<T | T[]>;
+    callback: (request: ExpressRequest, response: Response) => Promise<T | T[] | null>;
 }
 
 interface AuthenticatedEndpointConfig<T extends ISerializable, Token>
 {
     method: "DELETE" | "GET" | "POST" | "PUT";
     url: string;
-    callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[]>;
+    callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[] | null>;
     retrieveToken: (id: string) => Promise<Token | null>;
 }
 
@@ -29,14 +29,28 @@ export class Endpoint<T extends ISerializable>
 
         this.config
             .callback(req, response)
-            .then(data =>
+            .then(async data =>
             {
-                if (Array.isArray(data))
+                if (data)
                 {
-                    return data.map(_ => _.serialize());
+                    if (Array.isArray(data))
+                    {
+                        const responseData: any[] = [];
+
+                        for (const element of data)
+                        {
+                            responseData.push(await element.serialize());
+                        }
+
+                        response.body.data = responseData;
+                    }
+                    else
+                    {
+                        response.body.data = await data.serialize();
+                    }
                 }
 
-                return data.serialize();
+                response.send();
             })
             .catch(error =>
             {
@@ -83,14 +97,28 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
 
         this.config
             .callback(req, response, token)
-            .then(data =>
+            .then(async data =>
             {
-                if (Array.isArray(data))
+                if (data)
                 {
-                    return data.map(_ => _.serialize());
+                    if (Array.isArray(data))
+                    {
+                        const responseData: any[] = [];
+
+                        for (const element of data)
+                        {
+                            responseData.push(await element.serialize());
+                        }
+
+                        response.body.data = responseData;
+                    }
+                    else
+                    {
+                        response.body.data = await data.serialize();
+                    }
                 }
-    
-                return data.serialize();
+
+                response.send();
             })
             .catch(error =>
             {
