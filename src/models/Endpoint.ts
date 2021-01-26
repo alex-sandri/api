@@ -35,7 +35,7 @@ export class Endpoint<T extends ISerializable>
 
         if (this.config.schema)
         {
-            const result = this.config.schema.validate(req.body);
+            const result = this.config.schema.validate(req.body, { abortEarly: false });
 
             if (result.error)
             {
@@ -99,7 +99,7 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
 
         if (this.config.schema)
         {
-            const result = this.config.schema.validate(req.body);
+            const result = this.config.schema.validate(req.body, { abortEarly: false });
 
             if (result.error)
             {
