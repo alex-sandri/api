@@ -37,9 +37,9 @@ export class Endpoint<T extends ISerializable>
         {
             const result = this.config.schema.validate(req.body);
 
-            if (result.errors)
+            if (result.error)
             {
-                response.body.errors = result.errors.details.map(error => ({ id: error.path.join("."), message: error.message }));
+                response.body.errors = result.error.details.map(error => ({ id: error.path.join("."), message: error.message }));
 
                 response.send();
 
@@ -101,9 +101,9 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
         {
             const result = this.config.schema.validate(req.body);
 
-            if (result.errors)
+            if (result.error)
             {
-                response.body.errors = result.errors.details.map(error => ({ id: error.path.join("."), message: error.message }));
+                response.body.errors = result.error.details.map(error => ({ id: error.path.join("."), message: error.message }));
 
                 response.send();
 
