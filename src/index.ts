@@ -34,14 +34,7 @@ export default class Api
 
             const handler = async (req: ExpressRequest, res: ExpressResponse) =>
             {
-                const onInternalRedirect = async (url: string) =>
-                {
-                    const redirect = config.endpoints.find(_ => _.config.url === url);
-
-                    await redirect?.run(req, res, onInternalRedirect);
-                };
-
-                await endpoint.run(req, res, onInternalRedirect);
+                await endpoint.run(req, res);
             }
 
             switch (method)

@@ -94,4 +94,9 @@ export class Response
 
         this.res.send(this.body);
     }
+
+    public redirect(url: string): void
+    {
+        this.res.redirect(url);
+    }
 }
