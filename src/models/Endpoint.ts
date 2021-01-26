@@ -1,20 +1,24 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from "express";
+import Joi from "joi";
 
 import { ISerializable } from "../common/ISerializable";
 import { ApiError } from "./ApiError";
 import { Response } from "./Response";
 
-interface EndpointConfig<T extends ISerializable>
+interface BasicEndpointConfig
 {
     method: "DELETE" | "GET" | "POST" | "PUT";
     url: string;
+    schema?: Joi.Schema,
+}
+
+interface EndpointConfig<T extends ISerializable> extends BasicEndpointConfig
+{
     callback: (request: ExpressRequest, response: Response) => Promise<T | T[] | null>;
 }
 
-interface AuthenticatedEndpointConfig<T extends ISerializable, Token>
+interface AuthenticatedEndpointConfig<T extends ISerializable, Token> extends BasicEndpointConfig
 {
-    method: "DELETE" | "GET" | "POST" | "PUT";
-    url: string;
     callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[] | null>;
     retrieveToken: (id: string) => Promise<Token | null>;
 }
@@ -27,6 +31,20 @@ export class Endpoint<T extends ISerializable>
     public async run(req: ExpressRequest, res: ExpressResponse): Promise<void>
     {
         const response = Response.from(res);
+
+        if (this.config.schema)
+        {
+            const result = this.config.schema.validate(req.body);
+
+            if (result.errors)
+            {
+                response.body.errors = result.errors.details.map(error => ({ id: error.path.join("."), message: error.message }));
+
+                response.send();
+
+                return;
+            }
+        }
 
         this.config
             .callback(req, response)
