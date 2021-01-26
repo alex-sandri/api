@@ -23,6 +23,7 @@ interface AuthenticatedEndpointConfig<T extends ISerializable, Token> extends Ba
     retrieveToken: (id: string) => Promise<Token | null>;
 }
 
+// TODO: Put duplicated code only in one place
 export class Endpoint<T extends ISerializable>
 {
     public constructor(public config: EndpointConfig<T>)
@@ -95,6 +96,20 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
     public async run(req: ExpressRequest, res: ExpressResponse): Promise<void>
     {
         const response = Response.from(res);
+
+        if (this.config.schema)
+        {
+            const result = this.config.schema.validate(req.body);
+
+            if (result.errors)
+            {
+                response.body.errors = result.errors.details.map(error => ({ id: error.path.join("."), message: error.message }));
+
+                response.send();
+
+                return;
+            }
+        }
 
         const token = await this.config.retrieveToken(req.token ?? "");
 
