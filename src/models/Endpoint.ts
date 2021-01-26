@@ -14,12 +14,12 @@ interface BasicEndpointConfig
 
 interface EndpointConfig<T extends ISerializable> extends BasicEndpointConfig
 {
-    callback: (request: ExpressRequest, response: Response) => Promise<T | T[] | null>;
+    callback: (request: ExpressRequest, response: Response) => Promise<T | T[] | EndpointRedirect | null>;
 }
 
 interface AuthenticatedEndpointConfig<T extends ISerializable, Token> extends BasicEndpointConfig
 {
-    callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[] | null>;
+    callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[] | EndpointRedirect | null>;
     retrieveToken: (id: string) => Promise<Token | null>;
 }
 
@@ -29,7 +29,7 @@ export class Endpoint<T extends ISerializable>
     public constructor(public config: EndpointConfig<T>)
     {}
 
-    public async run(req: ExpressRequest, res: ExpressResponse): Promise<void>
+    public async run(req: ExpressRequest, res: ExpressResponse, onInternalRedirect: (url: string) => Promise<void>): Promise<void>
     {
         const response = Response.from(res);
 
@@ -51,6 +51,13 @@ export class Endpoint<T extends ISerializable>
             .callback(req, response)
             .then(async data =>
             {
+                if (data instanceof EndpointRedirect)
+                {
+                    await onInternalRedirect(data.url);
+
+                    return;
+                }
+
                 if (data)
                 {
                     if (Array.isArray(data))
@@ -93,7 +100,7 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
     public constructor(public config: AuthenticatedEndpointConfig<T, Token>)
     {}
 
-    public async run(req: ExpressRequest, res: ExpressResponse): Promise<void>
+    public async run(req: ExpressRequest, res: ExpressResponse, onInternalRedirect: (url: string) => Promise<void>): Promise<void>
     {
         const response = Response.from(res);
 
@@ -135,6 +142,13 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
             .callback(req, response, token)
             .then(async data =>
             {
+                if (data instanceof EndpointRedirect)
+                {
+                    await onInternalRedirect(data.url);
+
+                    return;
+                }
+
                 if (data)
                 {
                     if (Array.isArray(data))
@@ -170,4 +184,10 @@ export class AuthenticatedEndpoint<T extends ISerializable, Token>
                 response.send();
             });
     }
+}
+
+export class EndpointRedirect
+{
+    constructor(public url: string)
+    {}
 }
