@@ -2,7 +2,7 @@ import express, { Request as ExpressRequest, Response as ExpressResponse } from 
 import cors from "cors";
 import helmet from "helmet";
 import bearerToken from "express-bearer-token";
-import { Endpoint, AuthenticatedEndpoint } from "./models/Endpoint";
+import { Endpoint, UnauthenticatedEndpoint } from "./models/Endpoint";
 
 interface ApiConfig
 {
@@ -10,7 +10,7 @@ interface ApiConfig
      * @default 3000
      */
     port?: number;
-    endpoints: (Endpoint<any> | AuthenticatedEndpoint<any, any>)[];
+    endpoints: (Endpoint<any, any> | UnauthenticatedEndpoint<any>)[];
 }
 
 export default class Api
