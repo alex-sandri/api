@@ -14,12 +14,12 @@ interface BasicEndpointConfig
 
 interface EndpointConfig<T extends ISerializable> extends BasicEndpointConfig
 {
-    callback: (request: ExpressRequest, response: Response) => Promise<T | T[] | null>;
+    callback: (request: ExpressRequest, response: Response) => Promise<T | T[] | void>;
 }
 
 interface AuthenticatedEndpointConfig<T extends ISerializable, Token> extends BasicEndpointConfig
 {
-    callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[] | null>;
+    callback: (request: ExpressRequest, response: Response, token: Token) => Promise<T | T[] | void>;
     retrieveToken: (id: string) => Promise<Token | null>;
 }
 
